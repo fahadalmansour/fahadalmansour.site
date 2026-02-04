@@ -20,7 +20,7 @@ jobs:
       - name: Deploy via SCP
         run: |
           FILES="index.html signin.php dashboard.php logout.php auth.php .htaccess favicon.svg robots.txt sitemap.xml 404.html"
-          scp -P 21098 -i /root/.ssh/deploy_key $FILES fsalmansour@162.254.39.146:public_html/
+          scp -P 21098 -i /root/.ssh/deploy_key_ed25519 $FILES fsalmansour@162.254.39.146:public_html/
 
       - name: Verify deployment
         run: |
