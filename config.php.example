@@ -1,0 +1,10 @@
+<?php
+// Authentication configuration
+// IMPORTANT: Copy this file to config.php and set your own values.
+// Generate a new hash: php -r "echo password_hash('YOUR_PASSWORD', PASSWORD_BCRYPT);"
+define('AUTH_USERNAME', 'your_username');
+define('AUTH_PASSWORD_HASH', '$2y$12$REPLACE_WITH_YOUR_BCRYPT_HASH');
+
+// Session settings
+define('SESSION_LIFETIME', 3600); // 1 hour
+define('SESSION_NAME', 'homelab_session');

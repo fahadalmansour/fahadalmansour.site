@@ -1,0 +1,120 @@
+# ============================================================================
+# fahadalmansour.site - .htaccess
+# ============================================================================
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # Block WordPress exploit paths
+    RewriteRule ^(wp-admin|wp-login|wp-includes|wp-content|xmlrpc)\.php - [F,L]
+    RewriteRule ^wp-admin(/)?$ - [F,L]
+
+    # Block common exploit paths
+    RewriteRule ^(phpmyadmin|pma|administrator)(/)?$ - [F,L]
+
+    # Block directory traversal in query strings
+    RewriteCond %{QUERY_STRING} \.\. [NC]
+    RewriteRule ^(.*)$ - [F,L]
+
+    # Block source control files
+    RewriteRule \.(git|svn|hg)(/)?$ - [F,L]
+</IfModule>
+
+# ============================================================================
+# SECURITY HEADERS
+# ============================================================================
+
+<IfModule mod_headers.c>
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' https://fonts.gstatic.com; connect-src 'self'; frame-ancestors 'self';"
+    Header always unset Server
+    Header always unset X-Powered-By
+</IfModule>
+
+# ============================================================================
+# PROTECT SENSITIVE FILES
+# ============================================================================
+
+# Block direct access to auth and config PHP files
+<FilesMatch "^(config|auth)\.php$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order Allow,Deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# Block .env, .bak, .sql files
+<FilesMatch "\.(env|sql|bak|backup|old)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order Allow,Deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# Block hidden files (except .well-known)
+<FilesMatch "^\.(?!well-known)">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order Allow,Deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# Block CLAUDE.md
+<Files "CLAUDE.md">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order Allow,Deny
+        Deny from all
+    </IfModule>
+</Files>
+
+# ============================================================================
+# CUSTOM ERROR PAGES
+# ============================================================================
+
+ErrorDocument 404 /404.html
+
+# ============================================================================
+# DISABLE DIRECTORY LISTING
+# ============================================================================
+
+<IfModule mod_autoindex.c>
+    Options -Indexes
+</IfModule>
+
+# ============================================================================
+# CACHING & COMPRESSION
+# ============================================================================
+
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresDefault "access plus 1 month"
+    ExpiresByType text/html "access plus 1 hour"
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+</IfModule>
+
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/plain text/html text/xml text/css
+    AddOutputFilterByType DEFLATE application/xml application/xhtml+xml
+    AddOutputFilterByType DEFLATE application/javascript application/json
+</IfModule>

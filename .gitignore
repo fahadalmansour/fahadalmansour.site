@@ -1,0 +1,12 @@
+# macOS
+.DS_Store
+._*
+
+# Backups
+*.backup-*
+
+# Claude Code
+.claude/
+
+# Secrets - never commit
+config.php

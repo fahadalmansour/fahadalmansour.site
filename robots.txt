@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard.php
+Disallow: /signin.php
+Disallow: /logout.php
+
+Sitemap: https://fahadalmansour.site/sitemap.xml
