@@ -49,12 +49,13 @@ deploy.sh            - Deployment script with pre-checks and health verification
 **Target**: Namecheap cPanel VPS (SSH user: `fsalmansour`, port 21098)
 
 ### Automatic (CI/CD)
-Push to `main` branch triggers GitHub Actions which:
-1. Validates PHP syntax
-2. Deploys all files (except `config.php`) via SCP
-3. Runs health checks against the live site
+Push to Forgejo `main` branch triggers Forgejo Actions (self-hosted runner on CT 103) which:
+1. Checks out code from Forgejo
+2. Validates PHP syntax
+3. Deploys all files (except `config.php`) via SCP
+4. Runs health checks against the live site
 
-**Required GitHub Secrets**: `VPS_SSH_KEY`, `VPS_HOST`, `VPS_USER`, `VPS_PORT`
+**Runner**: `forgejo-local` on 192.168.8.90 (host runner, ED25519 deploy key at `/root/.ssh/deploy_key_ed25519`)
 
 ### Manual
 ```bash
@@ -69,8 +70,8 @@ Push to `main` branch triggers GitHub Actions which:
 - Cloudflare SSL mode: **Flexible** (origin has no SSL cert for this domain).
 
 ### Git Remotes
-- **origin**: GitHub (private) — CI/CD source
-- **forgejo**: Self-hosted Forgejo at 192.168.8.90:3000 — homelab mirror
+- **origin**: GitHub (public) — code mirror
+- **forgejo**: Self-hosted Forgejo at 192.168.8.90:3000 — primary, CI/CD source
 
 ## Styling
 
