@@ -24,38 +24,53 @@ Personal landing page and homelab dashboard for fahadalmansour.site. Static HTML
 ## File Structure
 
 ```
-index.html      - Public landing page (hero, about, services, homelab CTA)
-signin.php       - Login form (redirects to dashboard if already authenticated)
-dashboard.php   - Protected homelab service links (grouped by category)
-logout.php      - Destroys session, redirects to login
-auth.php        - Authentication functions (session management, CSRF)
-config.php      - Credentials and session config (not web-accessible)
-.htaccess       - Apache access rules (protects config/auth files)
+index.html           - Public landing page (hero, about, services, homelab CTA)
+signin.php           - Login form (redirects to dashboard if already authenticated)
+dashboard.php        - Protected homelab service links (grouped by category)
+logout.php           - Destroys session, redirects to login
+auth.php             - Authentication functions (session management, CSRF)
+config.php           - Credentials and session config (NOT in git, not web-accessible)
+config.php.example   - Template for config.php (committed to git)
+.htaccess            - Apache access rules (protects config/auth files)
+deploy.sh            - Deployment script with pre-checks and health verification
+.github/workflows/   - GitHub Actions CI/CD (auto-deploy on push to main)
 ```
+
+## First-Time Setup
+
+1. Clone the repository
+2. Copy `config.php.example` to `config.php`
+3. Generate a bcrypt hash: `php -r "echo password_hash('YOUR_PASSWORD', PASSWORD_BCRYPT);"`
+4. Replace the `AUTH_PASSWORD_HASH` value in `config.php` with the output
+5. Deploy with config: `./deploy.sh --with-config`
 
 ## Deployment
 
 **Target**: Namecheap cPanel VPS (SSH user: `fsalmansour`, port 21098)
 
-### Deploy via SCP
+### Automatic (CI/CD)
+Push to `main` branch triggers GitHub Actions which:
+1. Validates PHP syntax
+2. Deploys all files (except `config.php`) via SCP
+3. Runs health checks against the live site
+
+**Required GitHub Secrets**: `VPS_SSH_KEY`, `VPS_HOST`, `VPS_USER`, `VPS_PORT`
+
+### Manual
 ```bash
-scp -P 21098 -i ~/.ssh/id_rsa index.html signin.php dashboard.php logout.php auth.php config.php .htaccess fsalmansour@162.254.39.146:public_html/
+./deploy.sh              # Deploy code only (normal updates)
+./deploy.sh --with-config  # Deploy code + config.php (first-time or password change)
 ```
 
-### Deploy via cPanel File Manager
-Upload all files to `public_html/`
-
 ### Important
+- `config.php` is **never** deployed via CI/CD. Use `./deploy.sh --with-config` for first-time setup or password changes.
 - The filename `login.php` is blocked by the hosting WAF (Imunify360/ModSecurity). Use `signin.php` instead.
 - Cloudflare DNS A record must point to `162.254.39.146` (proxied).
 - Cloudflare SSL mode: **Flexible** (origin has no SSL cert for this domain).
 
-### Before deploying: set the password
-```bash
-# Generate a bcrypt hash for your chosen password
-php -r "echo password_hash('YOUR_PASSWORD_HERE', PASSWORD_BCRYPT);"
-```
-Then replace the `AUTH_PASSWORD_HASH` value in `config.php` with the output.
+### Git Remotes
+- **origin**: GitHub (private) — CI/CD source
+- **forgejo**: Self-hosted Forgejo at 192.168.8.90:3000 — homelab mirror
 
 ## Styling
 
